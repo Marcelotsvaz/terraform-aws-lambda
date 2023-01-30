@@ -39,7 +39,7 @@ resource aws_lambda_function main {
 data archive_file main {
 	type = "zip"
 	source_dir = var.source_dir
-	output_path = "/tmp/terraform/${var.prefix}/${var.identifier}/module.zip"
+	output_path = "/tmp/terraform/${var.identifier}/module.zip"
 	excludes = [ "env/lib64" ]	# lib64 is a symlink which isn't supported by archive_file.
 }
 
@@ -70,12 +70,12 @@ resource aws_cloudwatch_log_group main {
 # Lambda IAM Role
 #-------------------------------------------------------------------------------
 resource aws_iam_role main {
-	name = "${var.prefix}-${var.identifier}"
+	name = var.identifier
 	assume_role_policy = data.aws_iam_policy_document.assume_role.json
 	managed_policy_arns = []
 	
 	inline_policy {
-		name = "${var.prefix}-${var.identifier}-logs"
+		name = "${var.identifier}-logs"
 		
 		policy = data.aws_iam_policy_document.logs.json
 	}
@@ -84,7 +84,7 @@ resource aws_iam_role main {
 		for_each = var.policies
 		
 		content {
-			name = "${var.prefix}-${var.identifier}-policy"
+			name = "${var.identifier}-policy"
 			
 			policy = inline_policy.value.json
 		}

@@ -11,7 +11,6 @@ module webhook_handler {
 	
 	name = "Webhook Handler"
 	identifier = "webhookHandler"
-	prefix = "${var.prefix}-${var.identifier}"
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.webhookHandler.main"

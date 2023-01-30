@@ -19,11 +19,6 @@ variable identifier {
 	type = string
 }
 
-variable prefix {
-	description = "Unique prefix used in resources that need a globally unique name."
-	type = string
-}
-
 
 # 
 # Code
@@ -88,5 +83,5 @@ variable policies {
 # Locals
 #-------------------------------------------------------------------------------
 locals {
-	lambda_function_name = "${var.prefix}-${var.identifier}"	# Avoid cyclic dependency.
+	lambda_function_name = var.identifier	# Avoid cyclic dependency.
 }
