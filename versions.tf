@@ -1,0 +1,23 @@
+# 
+# Terraform AWS Lambda Module
+# 
+# 
+# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
+
+
+
+terraform {
+	required_providers {
+		aws = {
+			source = "hashicorp/aws"
+			version = ">= 4.48"
+		}
+		
+		archive = {
+			source = "hashicorp/archive"
+			version = ">= 2.2"
+		}
+	}
+	
+	required_version = ">= 1.3.6"
+}

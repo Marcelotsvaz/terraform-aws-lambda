@@ -1,0 +1,12 @@
+# 
+# Terraform AWS Lambda Module
+# 
+# 
+# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
+
+
+
+**/deployment/
+*.tfvars
+*.tfstate
+*.tfstate.*
