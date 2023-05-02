@@ -91,7 +91,7 @@ resource aws_iam_role main {
 	}
 	
 	tags = {
-		Name: "${var.name} Lambda Role"
+		Name = "${var.name} Lambda Role"
 	}
 }
 
