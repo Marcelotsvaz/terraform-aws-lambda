@@ -24,7 +24,7 @@ variables:
 gitlabRegistry:
     stage: release
     
-    image: curlimages/curl:7.87.0
+    image: curlimages/curl:8.4.0@sha256:4a3396ae573c44932d06ba33f8696db4429c419da87cbdc82965ee96a37dd0af
     
     variables:
         moduleName: lambda
