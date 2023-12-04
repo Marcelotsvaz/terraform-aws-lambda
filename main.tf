@@ -13,7 +13,7 @@ resource aws_lambda_function main {
 	function_name = local.lambda_function_name
 	role = aws_iam_role.main.arn
 	
-	runtime = "python3.9"
+	runtime = "python3.11"
 	filename = data.archive_file.main.output_path
 	source_code_hash = data.archive_file.main.output_base64sha256
 	handler = var.handler
