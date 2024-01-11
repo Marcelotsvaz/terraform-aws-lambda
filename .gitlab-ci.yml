@@ -1,44 +1,8 @@
-# 
-# Terraform AWS Lambda Module
-# 
-# 
-# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
-
-
-
-stages:
-  - release
-
-
-variables:
-    # Fix wrong permissions for application image and instance user data due to runner setting "umask 0000" before
-    # cloning the repository.
-    FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: 'true'
-    GIT_STRATEGY: clone
-
-
-
-# 
-# Jobs
-#-----------------------------------------------------------------------------------------------------------------------
-gitlabRegistry:
-    stage: release
-    
-    image: curlimages/curl:8.4.0@sha256:4a3396ae573c44932d06ba33f8696db4429c419da87cbdc82965ee96a37dd0af
-    
-    variables:
-        moduleName: lambda
-        moduleProvider: aws
-        moduleVersion: ${CI_COMMIT_TAG}
-        tokenHeader: 'JOB-TOKEN: ${CI_JOB_TOKEN}'
-    
-    script:
-      - tar -czvf ${moduleName}.tar.gz --exclude ./.git .
-      - curl
-            --header "${tokenHeader}"
-            --upload-file ${moduleName}.tar.gz
-            --fail-with-body
-            ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/terraform/modules/${moduleName}/${moduleProvider}/${moduleVersion}/file
-    
-    rules:
-      - if: $CI_COMMIT_TAG
+include:
+  - component: gitlab.com/vaz-projects/gitlab/sane-workflow@1.2.0
+  - component: gitlab.com/vaz-projects/gitlab/stages@1.2.0
+  - component: gitlab.com/vaz-projects/gitlab/terraform-registry@1.2.0
+    inputs:
+        provider: aws
+        name: lambda
+  - component: gitlab.com/vaz-projects/gitlab/release@1.2.0
