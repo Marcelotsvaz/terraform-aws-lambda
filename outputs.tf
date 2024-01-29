@@ -1,11 +1,3 @@
-# 
-# Terraform AWS Lambda Module
-# 
-# 
-# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
-
-
-
 output function_name {
 	description = "Lambda Function name."
 	value = aws_lambda_function.main.function_name

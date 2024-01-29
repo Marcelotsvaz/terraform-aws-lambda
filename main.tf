@@ -1,12 +1,4 @@
 # 
-# Terraform AWS Lambda Module
-# 
-# 
-# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
-
-
-
-# 
 # Lambda Function
 #-------------------------------------------------------------------------------
 resource aws_lambda_function main {
@@ -21,7 +13,7 @@ resource aws_lambda_function main {
 	timeout = var.timeout
 	
 	environment {
-		variables = merge( var.environment, {
+		variables = merge( var.environment, {	# TODO: Change order.
 			PYTHONPATH = "/opt/site-packages"
 			terraformParameters = jsonencode( var.parameters )
 		} )

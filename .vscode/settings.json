@@ -1,17 +1,9 @@
-// 
-// Terraform AWS Lambda Module
-// 
-// 
-// Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
-
-
-
 {
 	"terminal.integrated.profiles.linux": {
 		"fish": {
 			"path": "/usr/bin/fish",
 			"env": {
-				"TF_DATA_DIR": "../../deployment/terraform",
+				"TF_DATA_DIR": "${workspaceFolder}/.staging/terraform/",
 			},
 		},
 	},

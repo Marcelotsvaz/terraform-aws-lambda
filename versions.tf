@@ -1,11 +1,3 @@
-# 
-# Terraform AWS Lambda Module
-# 
-# 
-# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
-
-
-
 terraform {
 	required_providers {
 		aws = {

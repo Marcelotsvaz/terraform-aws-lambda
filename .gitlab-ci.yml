@@ -1,8 +1,8 @@
 include:
-  - component: gitlab.com/vaz-projects/gitlab/sane-workflow@1.2.0
-  - component: gitlab.com/vaz-projects/gitlab/stages@1.2.0
-  - component: gitlab.com/vaz-projects/gitlab/terraform-registry@1.2.0
+  - component: gitlab.com/vaz-projects/gitlab/sane-workflow@2.0.0
+  - component: gitlab.com/vaz-projects/gitlab/stages@2.0.0
+  - component: gitlab.com/vaz-projects/gitlab/terraform-registry@2.0.0
     inputs:
         provider: aws
         name: lambda
-  - component: gitlab.com/vaz-projects/gitlab/release@1.2.0
+  - component: gitlab.com/vaz-projects/gitlab/release@2.0.0
