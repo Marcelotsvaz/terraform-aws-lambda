@@ -3,36 +3,36 @@
 #-------------------------------------------------------------------------------
 resource aws_lambda_function main {
 	function_name = local.lambda_function_name
-	role = aws_iam_role.main.arn
 	
-	runtime = "python3.11"
-	filename = data.archive_file.main.output_path
-	source_code_hash = data.archive_file.main.output_base64sha256
-	handler = var.handler
-	layers = var.layers
+	memory_size = var.memory
+	ephemeral_storage { size = var.storage }
 	timeout = var.timeout
 	
+	package_type = "Image"
+	image_uri = var.image_uri
+	role = aws_iam_role.main.arn
+	
+	image_config {
+		command = var.command
+		entry_point = var.entry_point
+		working_directory = var.working_directory
+	}
+	
 	environment {
-		variables = merge( var.environment, {	# TODO: Change order.
-			PYTHONPATH = "/opt/site-packages"
-			terraformParameters = jsonencode( var.parameters )
-		} )
+		variables = merge(
+			{
+				
+			},
+			var.environment
+		)
 	}
 	
 	# Make sure the log group is created before the function because we removed the implicit dependency.
 	depends_on = [ aws_cloudwatch_log_group.main ]
 	
 	tags = {
-		Name = "${var.name} Lambda"
+		Name = "${var.tag_prefix} Lambda"
 	}
-}
-
-
-data archive_file main {
-	type = "zip"
-	source_dir = var.source_dir
-	output_path = "/tmp/terraform/${var.identifier}/module.zip"
-	excludes = [ "env/lib64" ]	# lib64 is a symlink which isn't supported by archive_file.
 }
 
 
@@ -52,22 +52,22 @@ resource aws_cloudwatch_log_group main {
 	name = "/aws/lambda/${local.lambda_function_name}"
 	
 	tags = {
-		Name = "${var.name} Lambda Log Group"
+		Name = "${var.tag_prefix} Lambda Log Group"
 	}
 }
 
 
 
 # 
-# Lambda IAM Role
+# IAM Role
 #-------------------------------------------------------------------------------
 resource aws_iam_role main {
-	name = var.identifier
+	name = var.prefix
 	assume_role_policy = data.aws_iam_policy_document.assume_role.json
 	managed_policy_arns = []
 	
 	inline_policy {
-		name = "${var.identifier}-logs"
+		name = "${var.prefix}-logs"
 		
 		policy = data.aws_iam_policy_document.logs.json
 	}
@@ -76,14 +76,14 @@ resource aws_iam_role main {
 		for_each = var.policies
 		
 		content {
-			name = "${var.identifier}-policy"
+			name = "${var.prefix}-policy"
 			
 			policy = inline_policy.value.json
 		}
 	}
 	
 	tags = {
-		Name = "${var.name} Lambda Role"
+		Name = "${var.tag_prefix} Lambda Role"
 	}
 }
 

@@ -1,62 +1,79 @@
 # 
 # Name
 #-------------------------------------------------------------------------------
-variable name {
-	description = "Name of the function."
+variable tag_prefix {
+	description = "Pretty name for resource tags."
 	type = string
 }
 
-variable identifier {
-	description = "Unique identifier used in resources that need an unique name."
+variable prefix {
+	description = "Prefix for resources that require an unique name."
 	type = string
 }
 
 
 # 
-# Code
+# Function
 #-------------------------------------------------------------------------------
-variable source_dir {
-	description = "Path of Python modules."
-	type = string
+variable memory {
+	description = "Amount of memory in MiB."
+	type = number
+	default = 128
 }
 
-variable handler {
-	description = "Lambda function entrypoint."
-	type = string
-}
-
-variable layers {
-	description = "Set of Lambda layer ARNs."
-	type = set( string )
-	default = []
+variable storage {
+	description = "Amount of ephemeral storage in MiB."
+	type = number
+	default = 512
 }
 
 variable timeout {
-	description = "Lambda function timeout."
+	description = "Function timeout."
 	type = number
-	default = 30
+	default = 60
 }
 
-variable parameters {
-	description = "Parameters automatically injected into module."
-	type = any
-	default = {}
-}
-
-variable environment {
-	description = "Environment variables."
-	type = map( string )
-	default = {}
+variable create_url {
+	description = "Create URL for calling the function."
+	type = bool
+	default = false
 }
 
 
 # 
-# Lambda
+# Images
 #-------------------------------------------------------------------------------
-variable create_url {
-	description = "Create Lambda function URL."
-	type = bool
-	default = false
+variable image_uri {
+	description = "ECR image URI."
+	type = string
+}
+
+variable command {
+	description = "Override command passed to image's entry point."
+	type = list( string )
+	default = null
+}
+
+variable entry_point {
+	description = "Override image's entry point."
+	type = list( string )
+	default = null
+}
+
+variable working_directory {
+	description = "Override image's working directory."
+	type = string
+	default = null
+}
+
+
+# 
+# Environment
+#-------------------------------------------------------------------------------
+variable environment {
+	description = "Environment variables for the container."
+	type = map( string )
+	default = {}
 }
 
 
@@ -64,8 +81,12 @@ variable create_url {
 # Permissions
 #-------------------------------------------------------------------------------
 variable policies {
-	description = "Set of policies for the Lambda Function IAM role."
-	type = set( object( { json = string } ) )
+	description = "Set of policies for the function's IAM role."
+	type = set(
+		object( {
+			json = string
+		} )
+	)
 	default = []
 }
 
@@ -75,5 +96,5 @@ variable policies {
 # Locals
 #-------------------------------------------------------------------------------
 locals {
-	lambda_function_name = var.identifier	# Avoid cyclic dependency.
+	lambda_function_name = var.prefix	# Avoid cyclic dependency.
 }
