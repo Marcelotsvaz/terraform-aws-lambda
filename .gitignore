@@ -1,3 +1,2 @@
 /.staging/**
 !/.staging/.gitkeep
-/examples/**/terraform.tfvars
