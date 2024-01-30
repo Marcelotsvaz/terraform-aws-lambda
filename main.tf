@@ -1,30 +1,50 @@
+locals {
+	merged_functions = {
+		# Merge `function` and `var.defaults` while ignoring null values.
+		# Merge nested maps and objects.
+		for name, function in var.functions:
+		name => {
+			for key, value in function:
+			key => value != null ?
+			try( merge( var.defaults[key], value ), value ) :
+			var.defaults[key]
+		}
+	}
+}
+
+
+
 # 
 # Lambda Function
 #-------------------------------------------------------------------------------
 resource aws_lambda_function main {
-	function_name = local.lambda_function_name
+	for_each = local.merged_functions
 	
-	memory_size = var.memory
-	ephemeral_storage { size = var.storage }
-	timeout = var.timeout
+	function_name = "${var.prefix}-${each.key}"
+	
+	memory_size = each.value.memory
+	ephemeral_storage { size = each.value.storage }
+	timeout = each.value.timeout
 	
 	package_type = "Image"
 	image_uri = var.image_uri
 	role = aws_iam_role.main.arn
 	
 	image_config {
-		command = var.command
-		entry_point = var.entry_point
-		working_directory = var.working_directory
+		command = each.value.command
+		entry_point = each.value.entry_point
+		working_directory = each.value.working_directory
 	}
 	
 	environment {
-		variables = var.environment
+		variables = each.value.environment
 	}
 	
 	logging_config {
 		log_group = aws_cloudwatch_log_group.main.name
 		log_format = "JSON"
+		system_log_level = "INFO"
+		application_log_level = "INFO"
 	}
 	
 	tags = {
@@ -34,9 +54,13 @@ resource aws_lambda_function main {
 
 
 resource aws_lambda_function_url main {
-	count = var.create_url ? 1 : 0
+	for_each = {
+		for name, function in local.merged_functions:
+		name => function
+		if function.create_url
+	}
 	
-	function_name = aws_lambda_function.main.function_name
+	function_name = aws_lambda_function.main[each.key].function_name
 	authorization_type = "NONE"
 }
 
@@ -46,7 +70,7 @@ resource aws_lambda_function_url main {
 # CloudWatch
 #-------------------------------------------------------------------------------
 resource aws_cloudwatch_log_group main {
-	name = "/aws/lambda/${local.lambda_function_name}"
+	name = "/aws/lambda/${var.prefix}"
 	
 	tags = {
 		Name = "${var.tag_prefix} Lambda Log Group"
@@ -69,15 +93,15 @@ resource aws_iam_role main {
 		policy = data.aws_iam_policy_document.logs.json
 	}
 	
-	dynamic inline_policy {
-		for_each = var.policies
+	# dynamic inline_policy {
+	# 	for_each = var.policies
 		
-		content {
-			name = "${var.prefix}-policy"
+	# 	content {
+	# 		name = "${var.prefix}-policy"
 			
-			policy = inline_policy.value.json
-		}
-	}
+	# 		policy = inline_policy.value.json
+	# 	}
+	# }
 	
 	tags = {
 		Name = "${var.tag_prefix} Lambda Role"

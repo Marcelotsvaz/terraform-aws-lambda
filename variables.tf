@@ -13,30 +13,41 @@ variable prefix {
 
 
 # 
-# Function
+# Functions
 #-------------------------------------------------------------------------------
-variable memory {
-	description = "Amount of memory in MiB."
-	type = number
-	default = 128
+variable defaults {
+	description = "Default values for all Lambda functions."
+	type = object( {
+		memory = optional( number, 128 )
+		storage = optional( number, 512 )
+		timeout = optional( number, 60 )
+		create_url = optional( bool, false )
+		
+		command = optional( list( string ) )
+		entry_point = optional( list( string ) )
+		working_directory = optional( string )
+		
+		environment = optional( map( string ), {} )
+	} )
+	default = {}
 }
 
-variable storage {
-	description = "Amount of ephemeral storage in MiB."
-	type = number
-	default = 512
-}
-
-variable timeout {
-	description = "Function timeout."
-	type = number
-	default = 60
-}
-
-variable create_url {
-	description = "Create URL for calling the function."
-	type = bool
-	default = false
+variable functions {
+	description = "Definitions for multiple Lambda functions sharing the same code."
+	type = map(
+		object( {
+			memory = optional( number )
+			storage = optional( number )
+			timeout = optional( number, null )
+			create_url = optional( bool )
+			
+			command = optional( list( string ) )
+			entry_point = optional( list( string ) )
+			working_directory = optional( string )
+			
+			environment = optional( map( string ) )
+		} )
+	)
 }
 
 
@@ -48,53 +59,16 @@ variable image_uri {
 	type = string
 }
 
-variable command {
-	description = "Override command passed to image's entry point."
-	type = list( string )
-	default = null
-}
-
-variable entry_point {
-	description = "Override image's entry point."
-	type = list( string )
-	default = null
-}
-
-variable working_directory {
-	description = "Override image's working directory."
-	type = string
-	default = null
-}
-
-
-# 
-# Environment
-#-------------------------------------------------------------------------------
-variable environment {
-	description = "Environment variables for the container."
-	type = map( string )
-	default = {}
-}
-
 
 # 
 # Permissions
 #-------------------------------------------------------------------------------
-variable policies {
-	description = "Set of policies for the function's IAM role."
-	type = set(
-		object( {
-			json = string
-		} )
-	)
-	default = []
-}
-
-
-
-# 
-# Locals
-#-------------------------------------------------------------------------------
-locals {
-	lambda_function_name = var.prefix	# Avoid cyclic dependency.
-}
+# variable policies {
+# 	description = "Set of policies for the function's IAM role."
+# 	type = set(
+# 		object( {
+# 			json = string
+# 		} )
+# 	)
+# 	default = []
+# }
