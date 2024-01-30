@@ -19,16 +19,13 @@ resource aws_lambda_function main {
 	}
 	
 	environment {
-		variables = merge(
-			{
-				
-			},
-			var.environment
-		)
+		variables = var.environment
 	}
 	
-	# Make sure the log group is created before the function because we removed the implicit dependency.
-	depends_on = [ aws_cloudwatch_log_group.main ]
+	logging_config {
+		log_group = aws_cloudwatch_log_group.main.name
+		log_format = "JSON"
+	}
 	
 	tags = {
 		Name = "${var.tag_prefix} Lambda"
