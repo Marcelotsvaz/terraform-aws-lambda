@@ -83,12 +83,12 @@ resource aws_cloudwatch_log_group main {
 # IAM Role
 #-------------------------------------------------------------------------------
 resource aws_iam_role main {
-	name = var.prefix
+	name = "${var.prefix}-lambda"
 	assume_role_policy = data.aws_iam_policy_document.assume_role.json
 	managed_policy_arns = []
 	
 	inline_policy {
-		name = "${var.prefix}-logs"
+		name = "lambda_logs"
 		
 		policy = data.aws_iam_policy_document.logs.json
 	}
