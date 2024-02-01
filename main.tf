@@ -93,15 +93,14 @@ resource aws_iam_role main {
 		policy = data.aws_iam_policy_document.logs.json
 	}
 	
-	# dynamic inline_policy {
-	# 	for_each = var.policies
+	dynamic inline_policy {
+		for_each = var.policies
 		
-	# 	content {
-	# 		name = "${var.prefix}-policy"
-			
-	# 		policy = inline_policy.value.json
-	# 	}
-	# }
+		content {
+			name = inline_policy.key
+			policy = inline_policy.value.json
+		}
+	}
 	
 	tags = {
 		Name = "${var.tag_prefix} Lambda Role"

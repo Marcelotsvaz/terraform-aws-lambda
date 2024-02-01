@@ -63,12 +63,12 @@ variable image_uri {
 # 
 # Permissions
 #-------------------------------------------------------------------------------
-# variable policies {
-# 	description = "Set of policies for the function's IAM role."
-# 	type = set(
-# 		object( {
-# 			json = string
-# 		} )
-# 	)
-# 	default = []
-# }
+variable policies {
+	description = "Map of policies for the function's IAM role."
+	type = map(
+		object( {
+			json = string
+		} )
+	)
+	default = {}
+}
