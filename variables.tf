@@ -28,6 +28,17 @@ variable defaults {
 		working_directory = optional( string )
 		
 		environment = optional( map( string ), {} )
+		
+		policy = optional(
+			set(
+				object( {
+					sid = optional( string )
+					actions = set( string )
+					resources = set( string )
+				} )
+			),
+			[]
+		)
 	} )
 	default = {}
 }
@@ -46,6 +57,16 @@ variable functions {
 			working_directory = optional( string )
 			
 			environment = optional( map( string ) )
+			
+			policy = optional(
+				set(
+					object( {
+						sid = optional( string )
+						actions = set( string )
+						resources = set( string )
+					} )
+				)
+			)
 		} )
 	)
 }
@@ -57,18 +78,4 @@ variable functions {
 variable image_uri {
 	description = "ECR image URI."
 	type = string
-}
-
-
-# 
-# Permissions
-#-------------------------------------------------------------------------------
-variable policies {
-	description = "Map of policies for the function's IAM role."
-	type = map(
-		object( {
-			json = string
-		} )
-	)
-	default = {}
 }

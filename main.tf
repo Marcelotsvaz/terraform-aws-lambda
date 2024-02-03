@@ -28,7 +28,7 @@ resource aws_lambda_function main {
 	
 	package_type = "Image"
 	image_uri = var.image_uri
-	role = aws_iam_role.main.arn
+	role = aws_iam_role.main[each.key].arn
 	
 	image_config {
 		command = each.value.command
@@ -83,22 +83,23 @@ resource aws_cloudwatch_log_group main {
 # IAM Role
 #-------------------------------------------------------------------------------
 resource aws_iam_role main {
-	name = "${var.prefix}-lambda"
+	for_each = local.merged_functions
+	
+	name = "${var.prefix}-${each.key}-lambda"
 	assume_role_policy = data.aws_iam_policy_document.assume_role.json
 	managed_policy_arns = []
 	
 	inline_policy {
-		name = "lambda_logs"
-		
+		name = "cloudwatch_logs"
 		policy = data.aws_iam_policy_document.logs.json
 	}
 	
 	dynamic inline_policy {
-		for_each = var.policies
+		for_each = length( each.value.policy ) > 0 ? [ true ] : []
 		
 		content {
-			name = inline_policy.key
-			policy = inline_policy.value.json
+			name = "main"
+			policy = data.aws_iam_policy_document.main[each.key].json
 		}
 	}
 	
@@ -128,5 +129,20 @@ data aws_iam_policy_document logs {
 			"logs:PutLogEvents",
 		]
 		resources = [ "${aws_cloudwatch_log_group.main.arn}:*" ]
+	}
+}
+
+
+data aws_iam_policy_document main {
+	for_each = local.merged_functions
+	
+	dynamic statement {
+		for_each = each.value.policy
+		
+		content {
+			sid = statement.value.sid
+			actions = statement.value.actions
+			resources = statement.value.resources
+		}
 	}
 }
