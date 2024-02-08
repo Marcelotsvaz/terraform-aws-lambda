@@ -5,9 +5,11 @@ locals {
 		for name, function in var.functions:
 		name => {
 			for key, value in function:
-			key => value != null ?
-			try( merge( var.defaults[key], value ), value ) :
-			var.defaults[key]
+			key => value == null ?
+			var.defaults[key] :
+			key == "policy" ?
+			setunion( var.defaults[key], value ) :
+			try( merge( var.defaults[key], value ), value )
 		}
 	}
 }
