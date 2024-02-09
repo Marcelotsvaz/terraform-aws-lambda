@@ -92,8 +92,8 @@ resource aws_iam_role main {
 	managed_policy_arns = []
 	
 	inline_policy {
-		name = "cloudwatch_logs"
-		policy = data.aws_iam_policy_document.logs.json
+		name = "cloudwatch"
+		policy = data.aws_iam_policy_document.cloudwatch.json
 	}
 	
 	dynamic inline_policy {
@@ -123,7 +123,7 @@ data aws_iam_policy_document assume_role {
 }
 
 
-data aws_iam_policy_document logs {
+data aws_iam_policy_document cloudwatch {
 	statement {
 		sid = "putCloudwatchLogs"
 		actions = [
@@ -131,6 +131,15 @@ data aws_iam_policy_document logs {
 			"logs:PutLogEvents",
 		]
 		resources = [ "${aws_cloudwatch_log_group.main.arn}:*" ]
+	}
+	
+	statement {
+		sid = "putXrayTraces"
+		actions = [
+			"xray:PutTraceSegments",
+			"xray:PutTelemetryRecords",
+		]
+		resources = [ "*" ]
 	}
 }
 
