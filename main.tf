@@ -43,7 +43,7 @@ resource aws_lambda_function main {
 	}
 	
 	logging_config {
-		log_group = aws_cloudwatch_log_group.main.name
+		log_group = aws_cloudwatch_log_group.main[each.key].name
 		log_format = "JSON"
 		system_log_level = "INFO"
 		application_log_level = "INFO"
@@ -72,7 +72,9 @@ resource aws_lambda_function_url main {
 # CloudWatch
 #-------------------------------------------------------------------------------
 resource aws_cloudwatch_log_group main {
-	name = "/aws/lambda/${var.prefix}"
+	for_each = local.merged_functions
+	
+	name = "/aws/lambda/${var.prefix}/${each.key}"
 	
 	tags = {
 		Name = "${var.tag_prefix} Lambda Log Group"
@@ -93,7 +95,7 @@ resource aws_iam_role main {
 	
 	inline_policy {
 		name = "cloudwatch"
-		policy = data.aws_iam_policy_document.cloudwatch.json
+		policy = data.aws_iam_policy_document.cloudwatch[each.key].json
 	}
 	
 	dynamic inline_policy {
@@ -124,13 +126,15 @@ data aws_iam_policy_document assume_role {
 
 
 data aws_iam_policy_document cloudwatch {
+	for_each = local.merged_functions
+	
 	statement {
 		sid = "putCloudwatchLogs"
 		actions = [
 			"logs:CreateLogStream",
 			"logs:PutLogEvents",
 		]
-		resources = [ "${aws_cloudwatch_log_group.main.arn}:*" ]
+		resources = [ "${aws_cloudwatch_log_group.main[each.key].arn}:*" ]
 	}
 	
 	statement {
