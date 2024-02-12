@@ -23,6 +23,7 @@ resource aws_lambda_function main {
 	for_each = local.merged_functions
 	
 	function_name = "${var.prefix}-${each.key}"
+	publish = each.value.provisioned_concurrency != null
 	
 	memory_size = each.value.memory
 	ephemeral_storage { size = each.value.storage }
@@ -64,6 +65,19 @@ resource aws_lambda_function_url main {
 	
 	function_name = aws_lambda_function.main[each.key].function_name
 	authorization_type = "NONE"
+}
+
+
+resource aws_lambda_provisioned_concurrency_config main {
+	for_each = {
+		for name, function in local.merged_functions:
+		name => function
+		if function.provisioned_concurrency != null
+	}
+	
+	function_name = aws_lambda_function.main[each.key].function_name
+	provisioned_concurrent_executions = each.value.provisioned_concurrency
+	qualifier = aws_lambda_function.main[each.key].version
 }
 
 

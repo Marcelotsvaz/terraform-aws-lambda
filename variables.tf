@@ -22,6 +22,7 @@ variable defaults {
 		storage = optional( number, 512 )
 		timeout = optional( number, 60 )
 		create_url = optional( bool, false )
+		provisioned_concurrency = optional( number )
 		
 		command = optional( list( string ) )
 		entry_point = optional( list( string ) )
@@ -51,6 +52,7 @@ variable functions {
 			storage = optional( number )
 			timeout = optional( number, null )
 			create_url = optional( bool )
+			provisioned_concurrency = optional( number )
 			
 			command = optional( list( string ) )
 			entry_point = optional( list( string ) )
