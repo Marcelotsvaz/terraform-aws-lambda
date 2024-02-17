@@ -3,13 +3,14 @@ output functions {
 	value = {
 		for name, function in aws_lambda_function.main:
 		name => {
-			full_name = aws_lambda_function.main[name].function_name
 			arn = aws_lambda_function.main[name].arn
-			qualified_arn = aws_lambda_function.main[name].qualified_arn
+			environment = try( aws_lambda_function.main[name].environment[0].variables, {} )
+			full_name = aws_lambda_function.main[name].function_name
 			invoke_arn = aws_lambda_function.main[name].invoke_arn
+			qualified_arn = aws_lambda_function.main[name].qualified_arn
 			qualified_invoke_arn = aws_lambda_function.main[name].qualified_invoke_arn
-			version = aws_lambda_function.main[name].version
 			url = try( aws_lambda_function_url.main[name].function_url, null )
+			version = aws_lambda_function.main[name].version
 		}
 	}
 }
