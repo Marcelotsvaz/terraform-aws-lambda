@@ -154,6 +154,8 @@ data aws_iam_policy_document cloudwatch {
 	statement {
 		sid = "putXrayTraces"
 		actions = [
+			"xray:GetSamplingRules",
+			"xray:GetSamplingTargets",
 			"xray:PutTraceSegments",
 			"xray:PutTelemetryRecords",
 		]
