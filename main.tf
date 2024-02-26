@@ -77,7 +77,17 @@ resource aws_lambda_provisioned_concurrency_config main {
 	
 	function_name = aws_lambda_function.main[each.key].function_name
 	provisioned_concurrent_executions = each.value.provisioned_concurrency
-	qualifier = aws_lambda_function.main[each.key].version
+	qualifier = aws_lambda_alias.main[each.key].name
+}
+
+
+resource aws_lambda_alias main {
+	for_each = local.merged_functions
+	
+	function_name = aws_lambda_function.main[each.key].function_name
+	
+	function_version = aws_lambda_function.main[each.key].version
+	name = "latest"
 }
 
 
