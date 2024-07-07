@@ -30,7 +30,7 @@ resource aws_lambda_function main {
 	timeout = each.value.timeout
 	
 	package_type = "Image"
-	image_uri = var.image_uri
+	image_uri = each.value.image_uri
 	role = aws_iam_role.main[each.key].arn
 	
 	image_config {

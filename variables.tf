@@ -18,6 +18,7 @@ variable prefix {
 variable defaults {
 	description = "Default values for all Lambda functions."
 	type = object( {
+		image_uri = optional( string )
 		memory = optional( number, 128 )
 		storage = optional( number, 512 )
 		timeout = optional( number, 60 )
@@ -48,6 +49,7 @@ variable functions {
 	description = "Definitions for multiple Lambda functions sharing the same code."
 	type = map(
 		object( {
+			image_uri = optional( string )
 			memory = optional( number )
 			storage = optional( number )
 			timeout = optional( number, null )
@@ -71,13 +73,4 @@ variable functions {
 			)
 		} )
 	)
-}
-
-
-# 
-# Images
-#-------------------------------------------------------------------------------
-variable image_uri {
-	description = "ECR image URI."
-	type = string
 }
