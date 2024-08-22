@@ -18,16 +18,28 @@ variable prefix {
 variable defaults {
 	description = "Default values for all Lambda functions."
 	type = object( {
-		image_uri = optional( string )
 		memory = optional( number, 128 )
 		storage = optional( number, 512 )
 		timeout = optional( number, 60 )
 		create_url = optional( bool, false )
 		provisioned_concurrency = optional( number )
 		
-		command = optional( list( string ) )
-		entry_point = optional( list( string ) )
-		working_directory = optional( string )
+		archive_config = optional(
+			object( {
+				runtime = optional( string )
+				filename = optional( string )
+				handler = optional( string )
+			} )
+		)
+		
+		image_config = optional(
+			object( {
+				image_uri = optional( string )
+				working_directory = optional( string )
+				entry_point = optional( list( string ) )
+				command = optional( list( string ) )
+			} )
+		)
 		
 		environment = optional( map( string ), {} )
 		
@@ -49,16 +61,28 @@ variable functions {
 	description = "Definitions for multiple Lambda functions sharing the same code."
 	type = map(
 		object( {
-			image_uri = optional( string )
 			memory = optional( number )
 			storage = optional( number )
 			timeout = optional( number, null )
 			create_url = optional( bool )
 			provisioned_concurrency = optional( number )
 			
-			command = optional( list( string ) )
-			entry_point = optional( list( string ) )
-			working_directory = optional( string )
+			archive_config = optional(
+				object( {
+					runtime = optional( string )
+					filename = optional( string )
+					handler = optional( string )
+				} )
+			)
+			
+			image_config = optional(
+				object( {
+					image_uri = optional( string )
+					working_directory = optional( string )
+					entry_point = optional( list( string ) )
+					command = optional( list( string ) )
+				} )
+			)
 			
 			environment = optional( map( string ) )
 			

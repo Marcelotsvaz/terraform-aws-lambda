@@ -7,4 +7,9 @@
 			},
 		},
 	},
+	
+	"cSpell.words": [
+		"alltrue",
+		"filebase64sha256",
+	],
 }

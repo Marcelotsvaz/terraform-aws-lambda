@@ -15,6 +15,17 @@ locals {
 }
 
 
+check merged_functions {
+	assert {
+		condition = alltrue( [
+			for function in local.merged_functions:
+			function.archive_config == null || function.image_config == null
+		] )
+		error_message = "Only one of `archive_config` or `image_config` can be defined."
+	}
+}
+
+
 
 # 
 # Lambda Function
@@ -29,19 +40,29 @@ resource aws_lambda_function main {
 	ephemeral_storage { size = each.value.storage }
 	timeout = each.value.timeout
 	
-	package_type = "Image"
-	image_uri = each.value.image_uri
-	role = aws_iam_role.main[each.key].arn
+	package_type = each.value.archive_config != null ? "Zip" : "Image"
 	
-	image_config {
-		command = each.value.command
-		entry_point = each.value.entry_point
-		working_directory = each.value.working_directory
+	runtime = try( each.value.archive_config.runtime, null )
+	filename = try( each.value.archive_config.filename, null )
+	source_code_hash = try( filebase64sha256( each.value.archive_config.filename ), null )
+	handler = try( each.value.archive_config.handler, null )
+	
+	image_uri = try( each.value.image_config.image_uri, null )
+	dynamic image_config {
+		for_each = each.value.image_config != null ? [ true ] : []
+		
+		content {
+			working_directory = each.value.image_config.working_directory
+			entry_point = each.value.image_config.entry_point
+			command = each.value.image_config.command
+		}
 	}
 	
 	environment {
 		variables = each.value.environment
 	}
+	
+	role = aws_iam_role.main[each.key].arn
 	
 	logging_config {
 		log_group = aws_cloudwatch_log_group.main[each.key].name
