@@ -1,1 +1,1 @@
-# (WIP) AWS Lambda Terraform Module
+# AWS Lambda Terraform Module

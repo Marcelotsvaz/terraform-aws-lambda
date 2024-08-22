@@ -1,5 +1,7 @@
 include:
   - component: gitlab.com/vaz-projects/gitlab/stages@2.0.0
+    inputs:
+        deployOn: tag
   - component: gitlab.com/vaz-projects/gitlab/terraform-registry@2.0.0
     inputs:
         provider: aws
