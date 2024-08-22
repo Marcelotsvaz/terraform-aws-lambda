@@ -3,10 +3,12 @@ output functions {
 	value = {
 		for name, function in aws_lambda_function.main:
 		name => {
-			arn = aws_lambda_function.main[name].arn
 			environment = try( aws_lambda_function.main[name].environment[0].variables, {} )
 			version = aws_lambda_function.main[name].version
 			full_name = aws_lambda_function.main[name].function_name
+			
+			arn = aws_lambda_function.main[name].arn
+			qualified_arn = aws_lambda_function.main[name].qualified_arn
 			invoke_arn = aws_lambda_function.main[name].invoke_arn
 			
 			alias_name = try( aws_lambda_alias.main[name].name, null )
