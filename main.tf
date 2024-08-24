@@ -122,7 +122,7 @@ resource aws_lambda_alias main {
 resource aws_cloudwatch_log_group main {
 	for_each = local.merged_functions
 	
-	name = "/aws/lambda/${var.prefix}/${each.key}"
+	name = "/aws/lambda/${each.value.edge_function ? "us-east-1." : "" }${var.prefix}-${each.key}"
 	
 	tags = {
 		Name = "${var.tag_prefix} Lambda Log Group"

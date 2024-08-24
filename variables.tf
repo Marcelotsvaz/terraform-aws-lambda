@@ -24,6 +24,7 @@ variable defaults {
 		create_url = optional( bool, false )
 		publish = optional( bool, false )
 		provisioned_concurrency = optional( number )
+		edge_function = optional( bool, false )
 		
 		archive_config = optional(
 			object( {
@@ -68,6 +69,7 @@ variable functions {
 			create_url = optional( bool )
 			publish = optional( bool )
 			provisioned_concurrency = optional( number )
+			edge_function = optional( bool )
 			
 			archive_config = optional(
 				object( {
