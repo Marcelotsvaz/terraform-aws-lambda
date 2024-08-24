@@ -58,8 +58,12 @@ resource aws_lambda_function main {
 		}
 	}
 	
-	environment {
-		variables = each.value.environment
+	dynamic environment {
+		for_each = length( each.value.environment ) > 0 ? [ true ] : []
+		
+		content {
+			variables = each.value.environment
+		}
 	}
 	
 	role = aws_iam_role.main[each.key].arn
