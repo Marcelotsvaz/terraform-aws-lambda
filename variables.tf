@@ -22,6 +22,7 @@ variable defaults {
 		storage = optional( number, 512 )
 		timeout = optional( number, 60 )
 		create_url = optional( bool, false )
+		publish = optional( bool, false )
 		provisioned_concurrency = optional( number )
 		
 		archive_config = optional(
@@ -65,6 +66,7 @@ variable functions {
 			storage = optional( number )
 			timeout = optional( number, null )
 			create_url = optional( bool )
+			publish = optional( bool )
 			provisioned_concurrency = optional( number )
 			
 			archive_config = optional(

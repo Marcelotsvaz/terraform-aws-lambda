@@ -34,7 +34,7 @@ resource aws_lambda_function main {
 	for_each = local.merged_functions
 	
 	function_name = "${var.prefix}-${each.key}"
-	publish = each.value.provisioned_concurrency != null
+	publish = each.value.publish || each.value.provisioned_concurrency != null
 	
 	memory_size = each.value.memory
 	ephemeral_storage { size = each.value.storage }
@@ -97,8 +97,8 @@ resource aws_lambda_provisioned_concurrency_config main {
 	}
 	
 	function_name = aws_lambda_function.main[each.key].function_name
-	provisioned_concurrent_executions = each.value.provisioned_concurrency
 	qualifier = aws_lambda_alias.main[each.key].name
+	provisioned_concurrent_executions = each.value.provisioned_concurrency
 }
 
 
@@ -106,7 +106,6 @@ resource aws_lambda_alias main {
 	for_each = local.merged_functions
 	
 	function_name = aws_lambda_function.main[each.key].function_name
-	
 	function_version = aws_lambda_function.main[each.key].version
 	name = "latest"
 }
@@ -164,7 +163,10 @@ data aws_iam_policy_document assume_role {
 		actions = [ "sts:AssumeRole" ]
 		principals {
 			type = "Service"
-			identifiers = [ "lambda.amazonaws.com" ]
+			identifiers = [
+				"lambda.amazonaws.com",
+				"edgelambda.amazonaws.com",
+			]
 		}
 	}
 }
