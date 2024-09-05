@@ -81,6 +81,14 @@ resource aws_lambda_function main {
 }
 
 
+resource aws_lambda_function_event_invoke_config main {
+	for_each = local.merged_functions
+	
+	function_name = aws_lambda_function.main[each.key].function_name
+	maximum_retry_attempts = each.value.async_retry_count
+}
+
+
 resource aws_lambda_function_url main {
 	for_each = {
 		for name, function in local.merged_functions:
