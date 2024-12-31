@@ -1,30 +1,39 @@
-# 
-# Terraform AWS Lambda Module
-# 
-# 
-# Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
-
-
-
-module webhook_handler {
-	source = "./module/lambda"
+module test_functions {
+	source = "../../"
 	
-	name = "Webhook Handler"
-	identifier = "webhookHandler"
+	tag_prefix = "Test Functions"
+	prefix = "test_functions"
 	
-	source_dir = "${path.module}/files/src"
-	handler = "manager.webhookHandler.main"
-	layers = [ aws_lambda_layer_version.python_packages.arn ]
-	parameters = { jobMatcherFunctionArn = module.job_matcher.arn }
+	defaults = {
+		environment = {
+			environment = "staging"
+		}
+	}
 	
-	policies = [ data.aws_iam_policy_document.webhook_handler ]
+	functions = {
+		test = {
+			memory = 1024
+			timeout = 60
+			
+			archive_config = {
+				runtime = "python3.12"
+				filename = data.archive_file.test_functions.output_path
+				handler = "main.handler"
+			}
+			
+			policy = [
+				{
+					actions = [ "ec2:DescribeInstances" ]
+					resources = [ "*" ]
+				}
+			]
+		}
+	}
 }
 
 
-data aws_iam_policy_document webhook_handler {
-	statement {
-		sid = "invokeJobMatcherFunction"
-		actions = [ "lambda:InvokeFunction" ]
-		resources = [ module.job_matcher.arn ]
-	}
+data archive_file test_functions {
+	type = "zip"
+	source_dir = "${path.module}/src/"
+	output_path = "${path.module}/../../.staging/test_functions.zip"
 }
