@@ -5,7 +5,7 @@ output functions {
 		name => {
 			environment = try( aws_lambda_function.main[name].environment[0].variables, {} )
 			version = aws_lambda_function.main[name].version
-			full_name = aws_lambda_function.main[name].function_name
+			name = aws_lambda_function.main[name].function_name
 			
 			arn = aws_lambda_function.main[name].arn
 			qualified_arn = aws_lambda_function.main[name].qualified_arn
