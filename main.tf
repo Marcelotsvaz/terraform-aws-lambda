@@ -156,7 +156,7 @@ module role {
 	prefix = "${var.prefix}-${each.key}"
 	
 	assumed_by = {
-		[each.value.edge_function ? "lambda_at_edge" : "lambda"] = {}
+		( each.value.edge_function ? "lambda_at_edge" : "lambda" ) = {}
 	}
 	
 	policy = concat( each.value.policy, [
