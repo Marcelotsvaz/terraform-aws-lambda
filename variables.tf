@@ -47,7 +47,7 @@ variable defaults {
 		environment = optional( map( string ), {} )
 		
 		policy = optional(
-			set(
+			list(
 				object( {
 					sid = optional( string )
 					actions = set( string )
@@ -93,7 +93,7 @@ variable functions {
 			environment = optional( map( string ) )
 			
 			policy = optional(
-				set(
+				list(
 					object( {
 						sid = optional( string )
 						actions = set( string )

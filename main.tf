@@ -8,7 +8,7 @@ locals {
 			key => value == null ?
 			var.defaults[key] :
 			key == "policy" ?
-			setunion( var.defaults[key], value ) :
+			concat( var.defaults[key], value ) :
 			try( merge( var.defaults[key], value ), value )
 		}
 	}
@@ -66,7 +66,7 @@ resource aws_lambda_function main {
 		}
 	}
 	
-	role = aws_iam_role.main[each.key].arn
+	role = module.role[each.key].arn
 	
 	logging_config {
 		log_group = aws_cloudwatch_log_group.main[each.key].name
@@ -142,83 +142,35 @@ resource aws_cloudwatch_log_group main {
 # 
 # IAM Role
 #-------------------------------------------------------------------------------
-resource aws_iam_role main {
+module role {
 	for_each = local.merged_functions
 	
-	name = "${var.prefix}-${each.key}-lambda"
-	assume_role_policy = data.aws_iam_policy_document.assume_role.json
-	managed_policy_arns = []
+	source = "gitlab.com/vaz-projects/iam-role/aws"
+	version = "0.2.0"
 	
-	inline_policy {
-		name = "cloudwatch"
-		policy = data.aws_iam_policy_document.cloudwatch[each.key].json
+	tag_prefix = "${var.tag_prefix} Lambda"
+	prefix = "${var.prefix}-${each.key}"
+	
+	assumed_by = {
+		lambda = {}
 	}
 	
-	dynamic inline_policy {
-		for_each = length( each.value.policy ) > 0 ? [ true ] : []
-		
-		content {
-			name = "main"
-			policy = data.aws_iam_policy_document.main[each.key].json
-		}
-	}
-	
-	tags = {
-		Name = "${var.tag_prefix} Lambda Role"
-	}
-}
-
-
-data aws_iam_policy_document assume_role {
-	statement {
-		sid = "lambdaAssumeRole"
-		actions = [ "sts:AssumeRole" ]
-		principals {
-			type = "Service"
-			identifiers = [
-				"lambda.amazonaws.com",
-				"edgelambda.amazonaws.com",
+	policy = concat( each.value.policy, [
+		{
+			actions = [
+				"logs:CreateLogStream",
+				"logs:PutLogEvents",
 			]
-		}
-	}
-}
-
-
-data aws_iam_policy_document cloudwatch {
-	for_each = local.merged_functions
-	
-	statement {
-		sid = "putCloudwatchLogs"
-		actions = [
-			"logs:CreateLogStream",
-			"logs:PutLogEvents",
-		]
-		resources = [ "${aws_cloudwatch_log_group.main[each.key].arn}:*" ]
-	}
-	
-	statement {
-		sid = "putXrayTraces"
-		actions = [
-			"xray:GetSamplingRules",
-			"xray:GetSamplingTargets",
-			"xray:PutTraceSegments",
-			"xray:PutTelemetryRecords",
-		]
-		resources = [ "*" ]
-	}
-}
-
-
-data aws_iam_policy_document main {
-	for_each = local.merged_functions
-	
-	dynamic statement {
-		for_each = each.value.policy
-		
-		content {
-			sid = statement.value.sid
-			actions = statement.value.actions
-			resources = statement.value.resources
-		}
-	}
+			resources = [ "${aws_cloudwatch_log_group.main[each.key].arn}:*" ]
+		},
+		{
+			actions = [
+				"xray:GetSamplingRules",
+				"xray:GetSamplingTargets",
+				"xray:PutTraceSegments",
+				"xray:PutTelemetryRecords",
+			]
+			resources = [ "*" ]
+		},
+	] )
 }
