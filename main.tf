@@ -75,6 +75,10 @@ resource aws_lambda_function main {
 		application_log_level = "INFO"
 	}
 	
+	tracing_config {
+		mode = each.value.enable_tracing ? "Active" : "PassThrough"
+	}
+	
 	tags = {
 		Name = "${var.tag_prefix} Lambda"
 	}

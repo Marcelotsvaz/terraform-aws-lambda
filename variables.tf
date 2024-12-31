@@ -26,6 +26,7 @@ variable defaults {
 		publish = optional( bool, false )
 		provisioned_concurrency = optional( number )
 		edge_function = optional( bool, false )
+		enable_tracing = optional( bool, true )
 		
 		archive_config = optional(
 			object( {
@@ -72,6 +73,7 @@ variable functions {
 			publish = optional( bool )
 			provisioned_concurrency = optional( number )
 			edge_function = optional( bool )
+			enable_tracing = optional( bool )
 			
 			archive_config = optional(
 				object( {
