@@ -152,11 +152,18 @@ module role {
 	prefix = "${var.prefix}-${each.key}"
 	
 	assumed_by = {
-		lambda = {}
+		[each.value.edge_function ? "lambda_at_edge" : "lambda"] = {}
 	}
 	
 	policy = concat( each.value.policy, [
-		{
+		each.value.edge_function ? {
+			actions = [
+				"logs:CreateLogGroup",
+				"logs:CreateLogStream",
+				"logs:PutLogEvents",
+			]
+			resources = [ "*" ]
+		} : {
 			actions = [
 				"logs:CreateLogStream",
 				"logs:PutLogEvents",
