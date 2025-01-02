@@ -1,32 +1,3 @@
-locals {
-	merged_functions = {
-		# Merge `function` and `var.defaults` while ignoring null values.
-		# Merge nested maps and objects.
-		for name, function in var.functions:
-		name => {
-			for key, value in function:
-			key => value == null ?
-			var.defaults[key] :
-			key == "policy" ?
-			concat( var.defaults[key], value ) :
-			try( merge( var.defaults[key], value ), value )
-		}
-	}
-}
-
-
-check merged_functions {
-	assert {
-		condition = alltrue( [
-			for function in local.merged_functions:
-			function.archive_config == null || function.image_config == null
-		] )
-		error_message = "Only one of `archive_config` or `image_config` can be defined."
-	}
-}
-
-
-
 # 
 # Lambda Function
 #-------------------------------------------------------------------------------

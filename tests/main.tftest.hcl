@@ -17,7 +17,7 @@ run test_environment_without_defaults {
 			test = {
 				archive_config = {
 					runtime = "python3.12"
-					filename = "foo"
+					filename = "foo.zip"
 					handler = "main.handler"
 				}
 				
@@ -50,7 +50,7 @@ run test_environment_with_defaults {
 			test = {
 				archive_config = {
 					runtime = "python3.12"
-					filename = "foo"
+					filename = "foo.zip"
 					handler = "main.handler"
 				}
 				
@@ -75,5 +75,42 @@ run test_environment_with_defaults {
 	assert {
 		condition = aws_lambda_function.main["test"].environment[0].variables["both"] == "d"
 		error_message = "Environment variable must be present with overridden value."
+	}
+}
+
+
+run test_object_merging {
+	command = plan
+	
+	variables {
+		defaults = {
+			archive_config = {
+				runtime = "python3.12"
+				filename = "foo.zip"
+			}
+		}
+		
+		functions = {
+			test = {
+				archive_config = {
+					handler = "main.handler"
+				}
+			}
+		}
+	}
+	
+	assert {
+		condition = aws_lambda_function.main["test"].runtime == "python3.12"
+		error_message = "Default value must be present."
+	}
+	
+	assert {
+		condition = aws_lambda_function.main["test"].filename == "foo.zip"
+		error_message = "Default value must be present."
+	}
+	
+	assert {
+		condition = aws_lambda_function.main["test"].handler == "main.handler"
+		error_message = "Overridden value must be present."
 	}
 }

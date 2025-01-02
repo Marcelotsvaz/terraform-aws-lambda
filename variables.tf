@@ -33,7 +33,7 @@ variable defaults {
 				runtime = optional( string )
 				filename = optional( string )
 				handler = optional( string )
-			} )
+			} ),
 		)
 		
 		image_config = optional(
@@ -42,7 +42,7 @@ variable defaults {
 				working_directory = optional( string )
 				entry_point = optional( list( string ) )
 				command = optional( list( string ) )
-			} )
+			} ),
 		)
 		
 		environment = optional( map( string ), {} )
@@ -55,7 +55,7 @@ variable defaults {
 					resources = set( string )
 				} )
 			),
-			[]
+			[],
 		)
 	} )
 	default = {}
@@ -80,7 +80,7 @@ variable functions {
 					runtime = optional( string )
 					filename = optional( string )
 					handler = optional( string )
-				} )
+				} ),
 			)
 			
 			image_config = optional(
@@ -89,7 +89,7 @@ variable functions {
 					working_directory = optional( string )
 					entry_point = optional( list( string ) )
 					command = optional( list( string ) )
-				} )
+				} ),
 			)
 			
 			environment = optional( map( string ) )
@@ -100,9 +100,61 @@ variable functions {
 						sid = optional( string )
 						actions = set( string )
 						resources = set( string )
-					} )
-				)
+					} ),
+				),
+				[],
 			)
 		} )
 	)
+}
+
+
+
+# 
+# Locals
+#-------------------------------------------------------------------------------
+locals {
+	merged_functions = {
+		# Merge `function` and `var.defaults` while ignoring null values.
+		# Merge nested maps and objects.
+		# Concatenate policies.
+		for name, function in var.functions:
+		name => merge(
+			var.defaults,
+			{
+				for key, value in function:
+				key => try(
+					merge( var.defaults[key], { for key2, value2 in value: key2 => value2 if value2 != null } ),
+					value,
+				)
+				if value != null
+			},
+			{
+				policy = concat( var.defaults.policy, function.policy )
+			},
+		)
+	}
+}
+
+
+check merged_functions {
+	assert {
+		condition = alltrue( [
+			for function in local.merged_functions:
+			function.archive_config == null || function.image_config == null
+		] )
+		error_message = "Only one of `archive_config` or `image_config` can be defined."
+	}
+	
+	assert {
+		condition = alltrue( [
+			for function in local.merged_functions:
+			(
+				function.archive_config.runtime != null &&
+				function.archive_config.filename != null &&
+				function.archive_config.handler != null
+			)
+		] )
+		error_message = "`runtime`, `filename`, and `handler` must be defined when using `archive_config`."
+	}
 }
